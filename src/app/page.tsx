@@ -9,10 +9,16 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [notifikasi, setNotifikasi] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterBulan, setFilterBulan] = useState('bulan-ini'); // 'bulan-ini' atau 'bulan-lalu'
+  const [userRole, setUserRole] = useState(''); // State untuk role user
   const router = useRouter();
 
-  useEffect(() => {
+  // State untuk Modal Edit
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editId, setEditId] = useState('');
+  const [editJudul, setEditJudul] = useState('');
+  const [editTanggal, setEditTanggal] = useState('');
+
+  const fetchData = () => {
     fetch('/api/upload')
       .then((res) => res.json())
       .then((data) => {
@@ -37,12 +43,69 @@ export default function Home() {
         console.error(err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchData();
+    // Ambil data user dari API /me untuk mendapatkan role
+    fetch('/api/me')
+      .then((res) => res.json())
+      .then((data) => setUserRole(data.role))
+      .catch((err) => console.error(err));
   }, []);
 
   const handleLogout = async () => {
     await fetch('/api/logout', { method: 'POST' });
     router.push('/login');
     router.refresh();
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus laporan ini?')) return;
+    
+    try {
+      const res = await fetch(`/api/upload/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert('Laporan berhasil dihapus');
+        fetchData();
+      } else {
+        alert('Gagal menghapus laporan');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Terjadi kesalahan sistem');
+    }
+  };
+
+  const openEditModal = (item: any) => {
+    setEditId(item.id);
+    setEditJudul(item.judul);
+    const date = new Date(item.tanggalDinas);
+    const formattedDate = date.toISOString().split('T')[0];
+    setEditTanggal(formattedDate);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/upload/${editId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ judul: editJudul, tanggal: editTanggal }),
+      });
+
+      if (res.ok) {
+        alert('Laporan berhasil diperbarui');
+        setIsEditModalOpen(false);
+        fetchData();
+      } else {
+        alert('Gagal memperbarui laporan');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Terjadi kesalahan sistem');
+    }
   };
 
   const filteredLaporan = laporan.filter((item) => 
@@ -54,33 +117,23 @@ export default function Home() {
   const tepatWaktu = laporan.filter((item) => item.status === 'TEPAT_WAKTU').length;
   const terlambat = laporan.filter((item) => item.status === 'TERLAMBAT').length;
 
-  // LOGIKA LEADERBOARD DENGAN FILTER BULAN
   const hitungPoin = () => {
     const poin: { [key: string]: number } = {};
     const hariIni = new Date();
     
     laporan.forEach((item) => {
       const tglUpload = new Date(item.createdAt); 
-      
-      let isPeriode = false;
-      if (filterBulan === 'bulan-ini') {
-        isPeriode = tglUpload.getMonth() === hariIni.getMonth() && 
-                    tglUpload.getFullYear() === hariIni.getFullYear();
-      } else {
-        // Bulan lalu
-        const bulanLalu = new Date(hariIni.getFullYear(), hariIni.getMonth() - 1, 1);
-        isPeriode = tglUpload.getMonth() === bulanLalu.getMonth() && 
-                    tglUpload.getFullYear() === bulanLalu.getFullYear();
-      }
+      const isBulanIni = tglUpload.getMonth() === hariIni.getMonth() && 
+                         tglUpload.getFullYear() === hariIni.getFullYear();
 
-      if (isPeriode && item.status === 'TEPAT_WAKTU' && item.user?.name) {
+      if (isBulanIni && item.status === 'TEPAT_WAKTU' && item.user?.name) {
         poin[item.user.name] = (poin[item.user.name] || 0) + 1;
       }
     });
     
     return Object.entries(poin)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 5); // Ambil Top 5
+      .slice(0, 5);
   };
 
   const topPegawai = hitungPoin();
@@ -89,6 +142,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#0f172a] text-slate-200 font-sans p-8 animate-fade-in">
       <div className="max-w-7xl mx-auto">
         
+        {/* BANNER NOTIFIKASI */}
         {notifikasi.length > 0 && (
           <div className="mb-8 bg-orange-500/10 border border-orange-500/50 rounded-xl p-4 shadow-lg animate-pulse-slow">
             <div className="flex items-start gap-3">
@@ -105,6 +159,7 @@ export default function Home() {
           </div>
         )}
 
+        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 border-b border-slate-700 pb-6">
           <div>
             <h1 className="text-3xl font-bold text-white tracking-tight">
@@ -125,7 +180,9 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {/* Card 1 */}
           <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
             <div className="flex justify-between items-center pl-2">
@@ -136,7 +193,7 @@ export default function Home() {
               <div className="bg-blue-500/10 p-4 rounded-full border border-blue-500/20 text-blue-400 group-hover:scale-110 transition-transform"><span className="text-2xl">📄</span></div>
             </div>
           </div>
-          
+          {/* Card 2 */}
           <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
             <div className="flex justify-between items-center pl-2">
@@ -147,7 +204,7 @@ export default function Home() {
               <div className="bg-emerald-500/10 p-4 rounded-full border border-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform"><span className="text-2xl">✅</span></div>
             </div>
           </div>
-          
+          {/* Card 3 */}
           <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
             <div className="flex justify-between items-center pl-2">
@@ -160,27 +217,16 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Leaderboard & Table */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          
-          {/* LEADERBOARD DENGAN FILTER */}
+          {/* Leaderboard */}
           <div className="lg:col-span-1 bg-slate-800/50 rounded-2xl border border-slate-700 shadow-lg p-6 h-fit">
-            <div className="border-b border-slate-700 pb-4 mb-5 flex justify-between items-start">
-              <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2"><span className="text-2xl">🏆</span> Pegawai Terajin</h2>
-                <p className="text-xs text-slate-400 mt-1 ml-8">Peringkat {filterBulan === 'bulan-ini' ? 'Bulan Ini' : 'Bulan Lalu'}</p>
-              </div>
-              {/* FILTER DROPDOWN */}
-              <select 
-                value={filterBulan} 
-                onChange={(e) => setFilterBulan(e.target.value)}
-                className="bg-slate-900 border border-slate-600 text-xs rounded-lg px-2 py-1 text-slate-300 focus:outline-none focus:border-emerald-500"
-              >
-                <option value="bulan-ini">Bulan Ini</option>
-                <option value="bulan-lalu">Bulan Lalu</option>
-              </select>
+            <div className="border-b border-slate-700 pb-4 mb-5">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2"><span className="text-2xl">🏆</span> Pegawai Terajin</h2>
+              <p className="text-xs text-slate-400 mt-1 ml-8">Peringkat Bulan Ini</p>
             </div>
             {topPegawai.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">Belum ada data.</p>
+              <p className="text-sm text-slate-500 text-center py-4">Belum ada data bulan ini.</p>
             ) : (
               <div className="space-y-5">
                 {topPegawai.map(([nama, jumlah], index) => (
@@ -196,7 +242,6 @@ export default function Home() {
                       'bg-slate-700 text-slate-300 border-2 border-slate-600'
                     }`}>
                       {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
-                      {/* BADGE MAHKOTA UNTUK JUARA 1 */}
                       {index === 0 && <span className="absolute -top-3 -right-2 text-xl animate-bounce">👑</span>}
                     </div>
                     <div className="flex-1">
@@ -209,6 +254,7 @@ export default function Home() {
             )}
           </div>
 
+          {/* Table */}
           <div className="lg:col-span-3 bg-slate-800/50 rounded-2xl border border-slate-700 shadow-lg overflow-hidden">
             <div className="p-6 border-b border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/50">
               <h2 className="text-xl font-bold text-white flex items-center gap-2"><span className="w-2 h-6 bg-emerald-500 rounded-sm"></span> Daftar Laporan Terbaru</h2>
@@ -251,12 +297,33 @@ export default function Home() {
                           </span>
                         </td>
                         <td className="p-4 text-right">
-                          <Link 
-                            href={`/preview?url=${encodeURIComponent(item.fileUrl)}&name=${encodeURIComponent(item.judul)}`} 
-                            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-emerald-600 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-emerald-500 shadow-sm"
-                          >
-                            <span>👁️</span> Review
-                          </Link>
+                          <div className="flex justify-end gap-2">
+                            {/* TOMBOL EDIT & HAPUS (HANYA UNTUK ADMIN) */}
+                            {userRole === 'admin' && (
+                              <>
+                                <button 
+                                  onClick={() => openEditModal(item)}
+                                  className="bg-slate-700 hover:bg-blue-600 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-blue-500 shadow-sm"
+                                  title="Edit Laporan"
+                                >
+                                  ✏️
+                                </button>
+                                <button 
+                                  onClick={() => handleDelete(item.id)}
+                                  className="bg-slate-700 hover:bg-red-600 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-red-500 shadow-sm"
+                                  title="Hapus Laporan"
+                                >
+                                  🗑️
+                                </button>
+                              </>
+                            )}
+                            <Link 
+                              href={`/preview?url=${encodeURIComponent(item.fileUrl)}&name=${encodeURIComponent(item.judul)}`} 
+                              className="inline-flex items-center gap-2 bg-slate-700 hover:bg-emerald-600 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-emerald-500 shadow-sm"
+                            >
+                              <span>👁️</span> Review
+                            </Link>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -269,6 +336,41 @@ export default function Home() {
 
         <div className="mt-10 text-center text-slate-500 text-sm">&copy; 2026 Platform Laporan Dinas. Internal Use Only.</div>
       </div>
+
+      {/* MODAL EDIT LAPORAN */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-slate-600 shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-4">Edit Laporan</h2>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm text-slate-300 mb-1">Judul Laporan</label>
+                <input 
+                  type="text" 
+                  value={editJudul} 
+                  onChange={(e) => setEditJudul(e.target.value)} 
+                  required 
+                  className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-300 mb-1">Tanggal Dinas</label>
+                <input 
+                  type="date" 
+                  value={editTanggal} 
+                  onChange={(e) => setEditTanggal(e.target.value)} 
+                  required 
+                  className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500" 
+                />
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-all">Batal</button>
+                <button type="submit" className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-all">Simpan Perubahan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
