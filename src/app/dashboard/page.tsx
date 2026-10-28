@@ -9,6 +9,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [notifikasi, setNotifikasi] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null); // State untuk feedback copy
   const router = useRouter();
 
   const fetchData = () => {
@@ -63,6 +64,12 @@ export default function Home() {
       console.error(error);
       alert('Terjadi kesalahan sistem');
     }
+  };
+
+  const handleCopyLink = (url: string, id: string) => {
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000); // Reset setelah 2 detik
   };
 
   const filteredLaporan = laporan.filter((item) => 
@@ -135,12 +142,25 @@ export default function Home() {
           </div>
         </div>
 
-        {/* RUNNING TEXT / MARQUEE - LEBIH PENDEK & LAMBAT */}
+        {/* RUNNING TEXT / MARQUEE */}
         <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
-          <div className="animate-marquee text-emerald-400 font-semibold text-sm flex items-center gap-12">
-            <span>📌 Upload laporan maksimal 3 hari setelah perjalanan dinas.</span>
+          <div className="animate-marquee text-emerald-400 font-semibold text-sm flex items-center gap-4">
+            <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
+            <span>•</span>
+            <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
+            <span>•</span>
             <span>🏆 Jadilah Pegawai Terajin bulan ini!</span>
+            <span>•</span>
             <span>📊 Ekspor data laporan di halaman Arsip.</span>
+            <span>•</span>
+            <span>🔍 Cari laporan dengan cepat di kolom pencarian.</span>
+            <span>•</span>
+            <span>📅 Pantau notifikasi batas waktu di Dashboard.</span>
+            <span>•</span>
+            <span>🖨️ Cetak laporan langsung dari halaman Arsip.</span>
+            <span>•</span>
+            <span>👤 Klik nama pegawai di Papan Peringkat untuk melihat profil.</span>
+            <span>•</span>
           </div>
         </div>
 
@@ -241,7 +261,7 @@ export default function Home() {
                     <tr><td colSpan={5} className="p-12 text-center text-slate-500"><div className="flex flex-col items-center justify-center"><span className="text-4xl mb-3">📭</span><p>Tidak ada laporan yang cocok.</p></div></td></tr>
                   ) : (
                     filteredLaporan.map((item, index) => (
-                      <tr key={item.id} className={`hover:bg-slate-800 transition-colors group ${index % 2 === 0 ? 'bg-slate-800/20' : 'bg-transparent'}`}>
+                      <tr key={item.id} className={`hover:bg-slate-800 transition-colors group ${index % 2 === 0 ? 'bg-slate-800/20' : 'bg-transparent'} animate-fade-in`}>
                         <td className="p-4 font-medium text-white group-hover:text-emerald-400 transition-colors">{item.judul}</td>
                         <td className="p-4 text-slate-300">{item.user?.name || 'Unknown'}</td>
                         <td className="p-4 text-slate-400">{new Date(item.tanggalDinas).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
@@ -263,6 +283,13 @@ export default function Home() {
                               title="Hapus Laporan"
                             >
                               🗑️
+                            </button>
+                            <button 
+                              onClick={() => handleCopyLink(item.fileUrl, item.id)}
+                              className="inline-flex items-center gap-2 bg-slate-700 hover:bg-blue-600 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-blue-500 shadow-sm"
+                              title="Copy Link File"
+                            >
+                              {copiedId === item.id ? '✅' : '🔗'}
                             </button>
                             <Link 
                               href={`/preview?url=${encodeURIComponent(item.fileUrl)}&name=${encodeURIComponent(item.judul)}`} 

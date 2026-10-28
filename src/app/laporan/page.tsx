@@ -15,12 +15,10 @@ function ArsipContent() {
   
   const bulanAktif = searchParams.get('bulan');
 
-  // State untuk Modal Ekspor
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [exportOption, setExportOption] = useState('semua');
   const [selectedMonth, setSelectedMonth] = useState('');
 
-  // State untuk Modal Cetak
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [printOption, setPrintOption] = useState('semua');
   const [printMonth, setPrintMonth] = useState('');
@@ -102,7 +100,6 @@ function ArsipContent() {
   };
 
   const handlePrint = () => {
-    // Filter data berdasarkan pilihan
     let dataToPrint = laporan;
     if (printOption === 'bulan-tertentu' && printMonth) {
       dataToPrint = laporan.filter((item) => {
@@ -117,46 +114,12 @@ function ArsipContent() {
       return;
     }
 
-    // Simpan data ke state sementara (atau langsung cetak dengan manipulasi DOM)
-    // Karena window.print() mencetak seluruh halaman, kita perlu trik:
-    // 1. Sembunyikan semua baris yang tidak perlu
-    // 2. Cetak
-    // 3. Kembalikan
-    
-    // Cara paling sederhana: reload halaman dengan parameter bulan (jika bulan tertentu)
-    // Tapi itu akan merubah URL. 
-    // Mari kita gunakan trik CSS: sembunyikan yang tidak perlu saat print.
-    
-    // Kita akan inject style sementara untuk print
-    const style = document.createElement('style');
-    style.innerHTML = `
-      @media print {
-        .print-hidden-row { display: none !important; }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Tandai baris yang tidak perlu dicetak
-    const rows = document.querySelectorAll('tbody tr');
-    // Ini agak rumit karena kita perlu tahu baris mana yang milik bulan apa.
-    // Alternatif: kita render ulang tabel sementara di modal? Terlalu kompleks.
-    
-    // SOLUSI PALING PRAKTIS: Arahkan ke halaman print khusus
-    // Tapi karena kita sudah punya window.print(), kita gunakan trik:
-    // Filter data di state, lalu panggil window.print(), lalu kembalikan.
-    
-    // Simpan data asli
     const originalData = laporan;
-    
-    // Set data sementara ke data yang mau dicetak
     setLaporan(dataToPrint);
     setIsPrintModalOpen(false);
     
-    // Tunggu render selesai, lalu print
     setTimeout(() => {
       window.print();
-      // Kembalikan data asli setelah print dialog ditutup
-      // (onfocus atau afterprint)
       setTimeout(() => {
         setLaporan(originalData);
       }, 1000);
@@ -167,14 +130,12 @@ function ArsipContent() {
     <div className="min-h-screen bg-[#2B3241] text-white font-sans p-8">
       <div className="max-w-6xl mx-auto">
         
-        {/* Kop Surat Print */}
         <div className="hidden print:block text-center mb-8 border-b-2 border-black pb-4">
           <h2 className="text-xl font-bold text-black uppercase">Kementerian Kelautan dan Perikanan</h2>
           <h3 className="text-lg font-semibold text-black">Balai Pengendalian dan Pengawasan Mutu Hasil Kelautan dan Perikanan Denpasar</h3>
           <p className="text-sm text-black mt-2">Arsip Laporan Perjalanan Dinas</p>
         </div>
 
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 border-b border-gray-600 pb-6 print:hidden">
           <div>
             <h1 className="text-3xl font-bold text-white tracking-wide">
@@ -183,29 +144,24 @@ function ArsipContent() {
             <p className="text-gray-300 mt-1">Seluruh riwayat perjalanan dinas</p>
           </div>
           <div className="flex gap-2">
-            {/* TOMBOL EKSPOR EXCEL */}
             <button 
               onClick={() => setIsExportModalOpen(true)}
               className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-emerald-900/30"
             >
               📊 Ekspor Excel
             </button>
-            
-            {/* TOMBOL CETAK (BUKA MODAL) */}
             <button 
               onClick={() => setIsPrintModalOpen(true)} 
               className="bg-slate-600 hover:bg-slate-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg"
             >
               🖨️ Cetak
             </button>
-
             <Link href="/dashboard" className="bg-[#3A4355] hover:bg-gray-600 border border-gray-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm">
               &larr; Dashboard
             </Link>
           </div>
         </div>
 
-        {/* Search Bar */}
         <div className="bg-[#3A4355] rounded-t-2xl border border-gray-600 p-6 flex justify-between items-center print:hidden">
           <div>
             <h2 className="text-xl font-semibold text-white flex items-center gap-2">
@@ -226,7 +182,6 @@ function ArsipContent() {
           </div>
         </div>
 
-        {/* Daftar Laporan Dikelompokkan */}
         <div className="space-y-4">
           {loading ? (
             <div className="bg-[#3A4355] border border-gray-600 rounded-b-2xl p-8 text-center text-gray-400">
@@ -251,7 +206,8 @@ function ArsipContent() {
                     <span>📅</span> {bulan}
                   </h3>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-gray-400 bg-gray-800 px-3 py-1 rounded-full print:hidden">
+                    {/* Penegasan Jumlah Laporan */}
+                    <span className="text-xs text-emerald-300 bg-emerald-900/50 px-3 py-1 rounded-full font-bold print:hidden">
                       {groupedLaporan[bulan].length} Laporan
                     </span>
                     <span className="text-xl text-white print:hidden">
@@ -274,7 +230,7 @@ function ArsipContent() {
                       </thead>
                       <tbody className="divide-y divide-gray-600/50">
                         {groupedLaporan[bulan].map((item: any) => (
-                          <tr key={item.id} className="hover:bg-[#2B3241]/50 transition-colors group print:hover:bg-transparent">
+                          <tr key={item.id} className="hover:bg-[#2B3241]/50 transition-colors group print:hover:bg-transparent animate-fade-in">
                             <td className="p-4 font-medium text-white print:text-black">{item.judul}</td>
                             <td className="p-4 text-emerald-400 font-medium print:text-black">{item.user?.name || 'Unknown'}</td>
                             <td className="p-4 text-gray-300 print:text-black">
