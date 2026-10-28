@@ -1,10 +1,6 @@
 import { prisma } from '../../../../lib/prisma';
-import { PrismaClient } from '../../../generated/prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
-
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +8,7 @@ export async function POST(request: Request) {
     const file = formData.get('file') as File;
     const judul = formData.get('judul') as string;
     const tanggalDinas = formData.get('tanggal') as string;
-    const userId = formData.get('userId') as string; // <-- Ambil ID Pegawai dari form
+    const userId = formData.get('userId') as string;
 
     if (!file || !judul || !tanggalDinas || !userId) {
       return NextResponse.json({ error: 'Data tidak lengkap' }, { status: 400 });
@@ -21,7 +17,7 @@ export async function POST(request: Request) {
     // Upload file ke Vercel Blob
     const blob = await put(file.name, file, {
       access: 'public',
-      allowOverwrite: true, 
+      allowOverwrite: true,
     });
 
     // Logika status
@@ -30,14 +26,14 @@ export async function POST(request: Request) {
     const selisihHari = Math.floor((hariIni.getTime() - tglDinas.getTime()) / (1000 * 3600 * 24));
     const status = selisihHari > 3 ? 'TERLAMBAT' : 'TEPAT_WAKTU';
 
-    // Simpan ke database dengan userId dari form
+    // Simpan ke database
     const laporan = await prisma.laporan.create({
       data: {
         judul: judul,
         tanggalDinas: tglDinas,
         fileUrl: blob.url,
         status: status,
-        userId: userId, // <-- Gunakan userId dari form
+        userId: userId,
       },
     });
 
@@ -56,6 +52,7 @@ export async function GET() {
     });
     return NextResponse.json(laporan);
   } catch (error) {
+    console.error("Error GET detail:", error);
     return NextResponse.json({ error: 'Gagal mengambil data' }, { status: 500 });
   }
 }
