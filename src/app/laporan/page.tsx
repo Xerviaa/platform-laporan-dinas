@@ -12,7 +12,6 @@ function ArsipContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // Ambil bulan aktif dari URL (jika ada)
   const bulanAktif = searchParams.get('bulan');
 
   useEffect(() => {
@@ -53,7 +52,7 @@ function ArsipContent() {
     }
   };
 
-  // FUNGSI EKSPOR EXCEL (CSV)
+  // FUNGSI EKSPOR EXCEL (CSV) - DIPERBAIKI
   const handleExport = () => {
     const headers = ['Judul Laporan', 'Pelaksana', 'Tanggal Dinas', 'Status', 'Link File'];
     
@@ -65,12 +64,14 @@ function ArsipContent() {
       `"${item.fileUrl}"`
     ]);
 
+    // Gunakan titik koma (;) sebagai pemisah untuk Excel Indonesia
     const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
+      headers.join(';'), 
+      ...rows.map(row => row.join(';')) 
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Tambahkan BOM (\uFEFF) agar Excel membaca encoding UTF-8 dengan benar
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -100,7 +101,6 @@ function ArsipContent() {
             <p className="text-gray-300 mt-1">Seluruh riwayat perjalanan dinas</p>
           </div>
           <div className="flex gap-2">
-            {/* TOMBOL EKSPOR EXCEL */}
             <button 
               onClick={handleExport}
               className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-emerald-900/30"
@@ -152,7 +152,6 @@ function ArsipContent() {
             sortedMonths.map((bulan) => (
               <div key={bulan} className="bg-[#3A4355] rounded-xl border border-gray-600 shadow-lg overflow-hidden print:border-none print:shadow-none print:bg-white print:text-black">
                 
-                {/* Tombol Bulan */}
                 <button 
                   onClick={() => toggleMonth(bulan)}
                   className="w-full flex justify-between items-center p-4 bg-[#2B3241] hover:bg-gray-700 transition-colors print:bg-gray-100 print:hover:bg-gray-100"
@@ -170,7 +169,6 @@ function ArsipContent() {
                   </div>
                 </button>
                 
-                {/* Isi Tabel */}
                 {bulanAktif === bulan && (
                   <div className="overflow-x-auto animate-fade-in">
                     <table className="w-full text-left border-collapse">
@@ -224,7 +222,6 @@ function ArsipContent() {
   );
 }
 
-// Suspense diperlukan karena useSearchParams() di Next.js
 export default function ArsipLaporan() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-[#2B3241] text-white flex items-center justify-center">Memuat arsip...</div>}>
