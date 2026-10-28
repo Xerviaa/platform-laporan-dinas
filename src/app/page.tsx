@@ -11,7 +11,13 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
+  // State untuk Modal Edit
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editId, setEditId] = useState('');
+  const [editJudul, setEditJudul] = useState('');
+  const [editTanggal, setEditTanggal] = useState('');
+
+  const fetchData = () => {
     fetch('/api/upload')
       .then((res) => res.json())
       .then((data) => {
@@ -36,12 +42,65 @@ export default function Home() {
         console.error(err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   const handleLogout = async () => {
     await fetch('/api/logout', { method: 'POST' });
     router.push('/login');
     router.refresh();
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus laporan ini? File juga akan terhapus permanen.')) return;
+    
+    try {
+      const res = await fetch(`/api/upload/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert('Laporan berhasil dihapus');
+        fetchData(); // Refresh data
+      } else {
+        alert('Gagal menghapus laporan');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Terjadi kesalahan sistem');
+    }
+  };
+
+  const openEditModal = (item: any) => {
+    setEditId(item.id);
+    setEditJudul(item.judul);
+    // Format tanggal ke YYYY-MM-DD untuk input date
+    const date = new Date(item.tanggalDinas);
+    const formattedDate = date.toISOString().split('T')[0];
+    setEditTanggal(formattedDate);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/upload/${editId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ judul: editJudul, tanggal: editTanggal }),
+      });
+
+      if (res.ok) {
+        alert('Laporan berhasil diperbarui');
+        setIsEditModalOpen(false);
+        fetchData(); // Refresh data
+      } else {
+        alert('Gagal memperbarui laporan');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Terjadi kesalahan sistem');
+    }
   };
 
   const filteredLaporan = laporan.filter((item) => 
@@ -118,6 +177,7 @@ export default function Home() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {/* Card 1 */}
           <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
             <div className="flex justify-between items-center pl-2">
@@ -125,12 +185,10 @@ export default function Home() {
                 <p className="text-slate-400 font-medium mb-1 text-sm">Total Laporan</p>
                 <p className="text-4xl font-bold text-white">{loading ? '-' : totalLaporan}</p>
               </div>
-              <div className="bg-blue-500/10 p-4 rounded-full border border-blue-500/20 text-blue-400 group-hover:scale-110 transition-transform">
-                <span className="text-2xl">📄</span>
-              </div>
+              <div className="bg-blue-500/10 p-4 rounded-full border border-blue-500/20 text-blue-400 group-hover:scale-110 transition-transform"><span className="text-2xl">📄</span></div>
             </div>
           </div>
-          
+          {/* Card 2 */}
           <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
             <div className="flex justify-between items-center pl-2">
@@ -138,12 +196,10 @@ export default function Home() {
                 <p className="text-slate-400 font-medium mb-1 text-sm">Tepat Waktu</p>
                 <p className="text-4xl font-bold text-emerald-400">{loading ? '-' : tepatWaktu}</p>
               </div>
-              <div className="bg-emerald-500/10 p-4 rounded-full border border-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform">
-                <span className="text-2xl">✅</span>
-              </div>
+              <div className="bg-emerald-500/10 p-4 rounded-full border border-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform"><span className="text-2xl">✅</span></div>
             </div>
           </div>
-          
+          {/* Card 3 */}
           <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
             <div className="flex justify-between items-center pl-2">
@@ -151,16 +207,13 @@ export default function Home() {
                 <p className="text-slate-400 font-medium mb-1 text-sm">Terlambat</p>
                 <p className="text-4xl font-bold text-orange-400">{loading ? '-' : terlambat}</p>
               </div>
-              <div className="bg-orange-500/10 p-4 rounded-full border border-orange-500/20 text-orange-400 group-hover:scale-110 transition-transform">
-                <span className="text-2xl">⏰</span>
-              </div>
+              <div className="bg-orange-500/10 p-4 rounded-full border border-orange-500/20 text-orange-400 group-hover:scale-110 transition-transform"><span className="text-2xl">⏰</span></div>
             </div>
           </div>
         </div>
 
         {/* Leaderboard & Table */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          
           {/* Leaderboard */}
           <div className="lg:col-span-1 bg-slate-800/50 rounded-2xl border border-slate-700 shadow-lg p-6 h-fit">
             <div className="border-b border-slate-700 pb-4 mb-5">
@@ -195,13 +248,7 @@ export default function Home() {
             <div className="p-6 border-b border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/50">
               <h2 className="text-xl font-bold text-white flex items-center gap-2"><span className="w-2 h-6 bg-emerald-500 rounded-sm"></span> Daftar Laporan Terbaru</h2>
               <div className="relative w-full md:w-72">
-                <input 
-                  type="text" 
-                  placeholder="Cari judul atau nama..." 
-                  className="bg-slate-900 border border-slate-600 text-sm rounded-lg pl-10 pr-4 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full transition-all" 
-                  value={searchQuery} 
-                  onChange={(e) => setSearchQuery(e.target.value)} 
-                />
+                <input type="text" placeholder="Cari judul atau nama..." className="bg-slate-900 border border-slate-600 text-sm rounded-lg pl-10 pr-4 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full transition-all" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                 <span className="absolute left-3 top-3 text-slate-500">🔍</span>
               </div>
             </div>
@@ -239,12 +286,28 @@ export default function Home() {
                           </span>
                         </td>
                         <td className="p-4 text-right">
-                          <Link 
-                            href={`/preview?url=${encodeURIComponent(item.fileUrl)}&name=${encodeURIComponent(item.judul)}&pelaksana=${encodeURIComponent(item.user?.name || 'Unknown')}&tanggal=${encodeURIComponent(new Date(item.tanggalDinas).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }))}&status=${encodeURIComponent(item.status.replace('_', ' '))}`} 
-                            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-emerald-600 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-emerald-500 shadow-sm"
-                          >
-                            <span>👁️</span> Review
-                          </Link>
+                          <div className="flex justify-end gap-2">
+                            <button 
+                              onClick={() => openEditModal(item)}
+                              className="bg-slate-700 hover:bg-blue-600 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-blue-500 shadow-sm"
+                              title="Edit Laporan"
+                            >
+                              ✏️
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(item.id)}
+                              className="bg-slate-700 hover:bg-red-600 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-red-500 shadow-sm"
+                              title="Hapus Laporan"
+                            >
+                              🗑️
+                            </button>
+                            <Link 
+                              href={`/preview?url=${encodeURIComponent(item.fileUrl)}&name=${encodeURIComponent(item.judul)}`} 
+                              className="inline-flex items-center gap-2 bg-slate-700 hover:bg-emerald-600 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-emerald-500 shadow-sm"
+                            >
+                              <span>👁️</span> Review
+                            </Link>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -255,10 +318,43 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-10 text-center text-slate-500 text-sm">
-          &copy; 2026 Platform Laporan Dinas. Internal Use Only.
-        </div>
+        <div className="mt-10 text-center text-slate-500 text-sm">&copy; 2026 Platform Laporan Dinas. Internal Use Only.</div>
       </div>
+
+      {/* MODAL EDIT LAPORAN */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-slate-600 shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-4">Edit Laporan</h2>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm text-slate-300 mb-1">Judul Laporan</label>
+                <input 
+                  type="text" 
+                  value={editJudul} 
+                  onChange={(e) => setEditJudul(e.target.value)} 
+                  required 
+                  className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-300 mb-1">Tanggal Dinas</label>
+                <input 
+                  type="date" 
+                  value={editTanggal} 
+                  onChange={(e) => setEditTanggal(e.target.value)} 
+                  required 
+                  className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500" 
+                />
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-all">Batal</button>
+                <button type="submit" className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-all">Simpan Perubahan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
