@@ -102,3 +102,12 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 40s linear infinite;
+}

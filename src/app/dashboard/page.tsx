@@ -142,27 +142,46 @@ export default function Home() {
           </div>
         </div>
 
-        {/* RUNNING TEXT / MARQUEE */}
-        <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
-          <div className="animate-marquee text-emerald-400 font-semibold text-sm flex items-center gap-4">
-            <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
-            <span>•</span>
-            <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
-            <span>•</span>
-            <span>🏆 Jadilah Pegawai Terajin bulan ini!</span>
-            <span>•</span>
-            <span>📊 Ekspor data laporan di halaman Arsip.</span>
-            <span>•</span>
-            <span>🔍 Cari laporan dengan cepat di kolom pencarian.</span>
-            <span>•</span>
-            <span>📅 Pantau notifikasi batas waktu di Dashboard.</span>
-            <span>•</span>
-            <span>🖨️ Cetak laporan langsung dari halaman Arsip.</span>
-            <span>•</span>
-            <span>👤 Klik nama pegawai di Papan Peringkat untuk melihat profil.</span>
-            <span>•</span>
-          </div>
-        </div>
+      {/* RUNNING TEXT / MARQUEE */}
+<div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
+  <div className="animate-marquee text-emerald-400 font-semibold text-sm flex items-center gap-4">
+    {/* Teks Pertama */}
+    <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
+    <span>•</span>
+    <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
+    <span>•</span>
+    <span>🏆 Jadilah Pegawai Terajin bulan ini!</span>
+    <span>•</span>
+    <span>📊 Ekspor data laporan di halaman Arsip.</span>
+    <span>•</span>
+    <span>🔍 Cari laporan dengan cepat di kolom pencarian.</span>
+    <span>•</span>
+    <span>📅 Pantau notifikasi batas waktu di Dashboard.</span>
+    <span>•</span>
+    <span>🖨️ Cetak laporan langsung dari halaman Arsip.</span>
+    <span>•</span>
+    <span>👤 Klik nama pegawai di Papan Peringkat untuk melihat profil.</span>
+    <span>•</span>
+
+    {/* Teks Duplikat (untuk mengisi ruang kosong) */}
+    <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
+    <span>•</span>
+    <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
+    <span>•</span>
+    <span>🏆 Jadilah Pegawai Terajin bulan ini!</span>
+    <span>•</span>
+    <span>📊 Ekspor data laporan di halaman Arsip.</span>
+    <span>•</span>
+    <span>🔍 Cari laporan dengan cepat di kolom pencarian.</span>
+    <span>•</span>
+    <span>📅 Pantau notifikasi batas waktu di Dashboard.</span>
+    <span>•</span>
+    <span>🖨️ Cetak laporan langsung dari halaman Arsip.</span>
+    <span>•</span>
+    <span>👤 Klik nama pegawai di Papan Peringkat untuk melihat profil.</span>
+    <span>•</span>
+  </div>
+</div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
