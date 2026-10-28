@@ -24,6 +24,12 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* =========================================
+   ANIMASI
+   ========================================= */
+
+/* Animasi Fade In */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -31,20 +37,30 @@ body {
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
-@media print {
-  @page {
-    size: A4 landscape; /* Agar tabel muat */
-    margin: 1cm;
-  }
-  body {
-    background-color: white !important;
-    color: black !important;
-  }
-  /* Sembunyikan elemen yang tidak perlu dicetak */
-  .print\:hidden {
-    display: none !important;
-  }
+
+/* Animasi Marquee (Running Text) */
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 40s linear infinite;
+}
+
+/* Animasi Pulse Slow (Opsional untuk notifikasi) */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+/* =========================================
+   PRINT STYLE (Untuk Cetak Laporan)
+   ========================================= */
 @media print {
   @page {
     size: A4 landscape;
@@ -62,8 +78,17 @@ body {
     background-color: white !important;
     color: black !important;
   }
+  .bg-\[\#2B3241\] { background-color: white !important; }
+  .bg-\[\#3A4355\] { background-color: white !important; border-color: black !important; }
+  .text-white { color: black !important; }
+  .text-emerald-400 { color: black !important; }
+  .text-gray-300 { color: black !important; }
+  .border-gray-600 { border-color: black !important; }
 }
-/* Membuat ikon kalender pada input date menjadi terang */
+
+/* =========================================
+   KUSTOMISASI INPUT DATE (Ikon Kalender Terang)
+   ========================================= */
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
@@ -73,41 +98,4 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
-}
-@media print {
-  @page { size: A4 landscape; margin: 1cm; }
-  body { background-color: white !important; color: black !important; }
-  .print\:hidden { display: none !important; }
-  .bg-\[\#2B3241\] { background-color: white !important; }
-  .bg-\[\#3A4355\] { background-color: white !important; border-color: black !important; }
-  .text-white { color: black !important; }
-  .text-emerald-400 { color: black !important; }
-  .text-gray-300 { color: black !important; }
-  .border-gray-600 { border-color: black !important; }
-}
-@keyframes marquee {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-.animate-marquee {
-  display: inline-block;
-  white-space: nowrap;
-  animation: marquee 40s linear infinite;
-}
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
-}
-@keyframes marquee {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-.animate-marquee {
-  display: inline-block;
-  white-space: nowrap;
-  animation: marquee 40s linear infinite;
 }
