@@ -11,7 +11,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
+  const fetchData = () => {
     fetch('/api/upload')
       .then((res) => res.json())
       .then((data) => {
@@ -36,12 +36,34 @@ export default function Home() {
         console.error(err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   const handleLogout = async () => {
     await fetch('/api/logout', { method: 'POST' });
     router.push('/login');
     router.refresh();
+  };
+
+  // FUNGSI HAPUS LAPORAN
+  const handleDelete = async (id: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus laporan ini?')) return;
+    
+    try {
+      const res = await fetch(`/api/upload/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert('Laporan berhasil dihapus');
+        fetchData(); // Refresh data tanpa reload halaman
+      } else {
+        alert('Gagal menghapus laporan');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Terjadi kesalahan sistem');
+    }
   };
 
   const filteredLaporan = laporan.filter((item) => 
@@ -226,12 +248,21 @@ export default function Home() {
                           </span>
                         </td>
                         <td className="p-4 text-right">
-                          <Link 
-                            href={`/preview?url=${encodeURIComponent(item.fileUrl)}&name=${encodeURIComponent(item.judul)}`} 
-                            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-emerald-600 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-emerald-500 shadow-sm"
-                          >
-                            <span>👁️</span> Review
-                          </Link>
+                          <div className="flex justify-end gap-2">
+                            <button 
+                              onClick={() => handleDelete(item.id)}
+                              className="inline-flex items-center gap-2 bg-slate-700 hover:bg-red-600 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-red-500 shadow-sm"
+                              title="Hapus Laporan"
+                            >
+                              🗑️
+                            </button>
+                            <Link 
+                              href={`/preview?url=${encodeURIComponent(item.fileUrl)}&name=${encodeURIComponent(item.judul)}`} 
+                              className="inline-flex items-center gap-2 bg-slate-700 hover:bg-emerald-600 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all border border-slate-600 hover:border-emerald-500 shadow-sm"
+                            >
+                              <span>👁️</span> Review
+                            </Link>
+                          </div>
                         </td>
                       </tr>
                     ))
