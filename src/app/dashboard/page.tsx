@@ -9,10 +9,17 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [notifikasi, setNotifikasi] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [copiedId, setCopiedId] = useState<string | null>(null); // State untuk feedback copy
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  
+  // State untuk Filter & Pagination
+  const [filterStatus, setFilterStatus] = useState('semua'); // 'semua', 'TEPAT_WAKTU', 'TERLAMBAT'
+  const [itemsPerPage, setItemsPerPage] = useState(5); // 5, 10, 25
+  const [currentPage, setCurrentPage] = useState(1);
+
   const router = useRouter();
 
-  const fetchData = () => {
+  const fetchData = (showLoading = false) => {
+    if (showLoading) setLoading(true);
     fetch('/api/upload')
       .then((res) => res.json())
       .then((data) => {
@@ -40,7 +47,14 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData(true);
+    
+    // FITUR 5: Notifikasi Real-time (Auto-refresh setiap 30 detik)
+    const interval = setInterval(() => {
+      fetchData(false); // Fetch tanpa loading spinner agar tidak mengganggu
+    }, 30000);
+
+    return () => clearInterval(interval); // Bersihkan interval saat komponen unmount
   }, []);
 
   const handleLogout = async () => {
@@ -72,10 +86,24 @@ export default function Home() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const filteredLaporan = laporan.filter((item) => 
-    item.judul.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.user?.name.toLowerCase().includes(searchQuery.toLowerCase())
+  // Filter & Pagination Logic
+  const filteredLaporan = laporan.filter((item) => {
+    const matchSearch = item.judul.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        item.user?.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = filterStatus === 'semua' || item.status === filterStatus;
+    return matchSearch && matchStatus;
+  });
+
+  const totalPages = Math.ceil(filteredLaporan.length / itemsPerPage);
+  const paginatedLaporan = filteredLaporan.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
+
+  // Reset page ke 1 jika filter berubah
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterStatus, itemsPerPage]);
 
   const totalLaporan = laporan.length;
   const tepatWaktu = laporan.filter((item) => item.status === 'TEPAT_WAKTU').length;
@@ -142,10 +170,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* RUNNING TEXT / MARQUEE - LEBIH BESAR & DUPLIKAT */}
+        {/* RUNNING TEXT / MARQUEE */}
         <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
           <div className="animate-marquee text-emerald-400 font-bold text-base flex items-center gap-6">
-            {/* Teks Pertama */}
             <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
             <span>•</span>
             <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
@@ -162,8 +189,6 @@ export default function Home() {
             <span>•</span>
             <span>👤 Klik nama pegawai di Papan Peringkat untuk melihat profil.</span>
             <span>•</span>
-
-            {/* Teks Duplikat (untuk mengisi ruang kosong) */}
             <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
             <span>•</span>
             <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
@@ -256,9 +281,22 @@ export default function Home() {
           <div className="lg:col-span-3 bg-slate-800/50 rounded-2xl border border-slate-700 shadow-lg overflow-hidden">
             <div className="p-6 border-b border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/50">
               <h2 className="text-xl font-bold text-white flex items-center gap-2"><span className="w-2 h-6 bg-emerald-500 rounded-sm"></span> Daftar Laporan Terbaru</h2>
-              <div className="relative w-full md:w-72">
-                <input type="text" placeholder="Cari judul atau nama..." className="bg-slate-900 border border-slate-600 text-sm rounded-lg pl-10 pr-4 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full transition-all" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-                <span className="absolute left-3 top-3 text-slate-500">🔍</span>
+              <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                {/* FITUR 1: Filter Status */}
+                <select 
+                  value={filterStatus} 
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="bg-slate-900 border border-slate-600 text-sm rounded-lg px-3 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="semua">Semua Status</option>
+                  <option value="TEPAT_WAKTU">Tepat Waktu</option>
+                  <option value="TERLAMBAT">Terlambat</option>
+                </select>
+
+                <div className="relative w-full md:w-64">
+                  <input type="text" placeholder="Cari judul atau nama..." className="bg-slate-900 border border-slate-600 text-sm rounded-lg pl-10 pr-4 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full transition-all" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                  <span className="absolute left-3 top-3 text-slate-500">🔍</span>
+                </div>
               </div>
             </div>
             
@@ -276,10 +314,10 @@ export default function Home() {
                 <tbody className="divide-y divide-slate-700/50">
                   {loading ? (
                     <tr><td colSpan={5} className="p-8 text-center text-slate-400">Memuat data...</td></tr>
-                  ) : filteredLaporan.length === 0 ? (
+                  ) : paginatedLaporan.length === 0 ? (
                     <tr><td colSpan={5} className="p-12 text-center text-slate-500"><div className="flex flex-col items-center justify-center"><span className="text-4xl mb-3">📭</span><p>Tidak ada laporan yang cocok.</p></div></td></tr>
                   ) : (
-                    filteredLaporan.map((item, index) => (
+                    paginatedLaporan.map((item, index) => (
                       <tr key={item.id} className={`hover:bg-slate-800 transition-colors group ${index % 2 === 0 ? 'bg-slate-800/20' : 'bg-transparent'} animate-fade-in`}>
                         <td className="p-4 font-medium text-white group-hover:text-emerald-400 transition-colors">{item.judul}</td>
                         <td className="p-4 text-slate-300">{item.user?.name || 'Unknown'}</td>
@@ -323,6 +361,43 @@ export default function Home() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* FITUR 2: Pagination (Tampilkan 5/10/25 & Navigasi Halaman) */}
+            <div className="p-4 border-t border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900/30">
+              <div className="flex items-center gap-2 text-sm text-slate-400">
+                <span>Tampilkan</span>
+                <select 
+                  value={itemsPerPage} 
+                  onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                  className="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-emerald-500"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                </select>
+                <span>laporan</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 bg-slate-800 border border-slate-600 rounded text-sm text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  &laquo; Sebelumnya
+                </button>
+                <span className="text-sm text-slate-400">
+                  Halaman {currentPage} dari {totalPages || 1}
+                </span>
+                <button 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  className="px-3 py-1 bg-slate-800 border border-slate-600 rounded text-sm text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Selanjutnya &raquo;
+                </button>
+              </div>
             </div>
           </div>
         </div>
