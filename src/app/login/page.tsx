@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import DynamicLogo from '@/components/DynamicLogo'; // Import komponen logo dinamis
+import DynamicLogo from '../../components/DynamicLogo';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');

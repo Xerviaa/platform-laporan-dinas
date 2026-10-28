@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import DynamicLogo from '@/components/DynamicLogo'; // Import komponen logo dinamis
+import DynamicLogo from '../../components/DynamicLogo'; // Import komponen logo dinamis
 
 export default function Home() {
   const [laporan, setLaporan] = useState<any[]>([]);
