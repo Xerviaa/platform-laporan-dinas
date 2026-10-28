@@ -9,6 +9,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [notifikasi, setNotifikasi] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterBulan, setFilterBulan] = useState('bulan-ini'); // 'bulan-ini' atau 'bulan-lalu'
   const router = useRouter();
 
   useEffect(() => {
@@ -53,23 +54,33 @@ export default function Home() {
   const tepatWaktu = laporan.filter((item) => item.status === 'TEPAT_WAKTU').length;
   const terlambat = laporan.filter((item) => item.status === 'TERLAMBAT').length;
 
+  // LOGIKA LEADERBOARD DENGAN FILTER BULAN
   const hitungPoin = () => {
     const poin: { [key: string]: number } = {};
     const hariIni = new Date();
     
     laporan.forEach((item) => {
       const tglUpload = new Date(item.createdAt); 
-      const isBulanIni = tglUpload.getMonth() === hariIni.getMonth() && 
-                         tglUpload.getFullYear() === hariIni.getFullYear();
+      
+      let isPeriode = false;
+      if (filterBulan === 'bulan-ini') {
+        isPeriode = tglUpload.getMonth() === hariIni.getMonth() && 
+                    tglUpload.getFullYear() === hariIni.getFullYear();
+      } else {
+        // Bulan lalu
+        const bulanLalu = new Date(hariIni.getFullYear(), hariIni.getMonth() - 1, 1);
+        isPeriode = tglUpload.getMonth() === bulanLalu.getMonth() && 
+                    tglUpload.getFullYear() === bulanLalu.getFullYear();
+      }
 
-      if (isBulanIni && item.status === 'TEPAT_WAKTU' && item.user?.name) {
+      if (isPeriode && item.status === 'TEPAT_WAKTU' && item.user?.name) {
         poin[item.user.name] = (poin[item.user.name] || 0) + 1;
       }
     });
     
     return Object.entries(poin)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 3);
+      .slice(0, 5); // Ambil Top 5
   };
 
   const topPegawai = hitungPoin();
@@ -150,29 +161,49 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          
+          {/* LEADERBOARD DENGAN FILTER */}
           <div className="lg:col-span-1 bg-slate-800/50 rounded-2xl border border-slate-700 shadow-lg p-6 h-fit">
-            <div className="border-b border-slate-700 pb-4 mb-5">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2"><span className="text-2xl">🏆</span> Pegawai Terajin</h2>
-              <p className="text-xs text-slate-400 mt-1 ml-8">Peringkat Bulan Ini</p>
+            <div className="border-b border-slate-700 pb-4 mb-5 flex justify-between items-start">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2"><span className="text-2xl">🏆</span> Pegawai Terajin</h2>
+                <p className="text-xs text-slate-400 mt-1 ml-8">Peringkat {filterBulan === 'bulan-ini' ? 'Bulan Ini' : 'Bulan Lalu'}</p>
+              </div>
+              {/* FILTER DROPDOWN */}
+              <select 
+                value={filterBulan} 
+                onChange={(e) => setFilterBulan(e.target.value)}
+                className="bg-slate-900 border border-slate-600 text-xs rounded-lg px-2 py-1 text-slate-300 focus:outline-none focus:border-emerald-500"
+              >
+                <option value="bulan-ini">Bulan Ini</option>
+                <option value="bulan-lalu">Bulan Lalu</option>
+              </select>
             </div>
             {topPegawai.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">Belum ada data bulan ini.</p>
+              <p className="text-sm text-slate-500 text-center py-4">Belum ada data.</p>
             ) : (
               <div className="space-y-5">
                 {topPegawai.map(([nama, jumlah], index) => (
-                  <div key={nama} className="flex items-center gap-4 group">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner ${
+                  <Link 
+                    href={`/profil?nama=${encodeURIComponent(nama)}`}
+                    key={nama} 
+                    className="flex items-center gap-4 group hover:bg-slate-700/50 p-2 -m-2 rounded-xl transition-all cursor-pointer"
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-inner relative ${
                       index === 0 ? 'bg-yellow-400 text-yellow-900 border-2 border-yellow-200' : 
                       index === 1 ? 'bg-slate-300 text-slate-800 border-2 border-white' : 
-                      'bg-amber-700 text-white border-2 border-amber-600'
+                      index === 2 ? 'bg-amber-700 text-white border-2 border-amber-600' :
+                      'bg-slate-700 text-slate-300 border-2 border-slate-600'
                     }`}>
-                      {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                      {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                      {/* BADGE MAHKOTA UNTUK JUARA 1 */}
+                      {index === 0 && <span className="absolute -top-3 -right-2 text-xl animate-bounce">👑</span>}
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-white line-clamp-1 group-hover:text-emerald-400 transition-colors">{nama}</p>
                       <p className="text-xs text-emerald-500 font-medium">{jumlah} Laporan Tepat Waktu</p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
