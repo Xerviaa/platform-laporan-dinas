@@ -226,26 +226,24 @@ export default function Home() {
         </div>
 
         {/* RUNNING TEXT / MARQUEE */}
-        <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
-          <div className="animate-marquee text-emerald-400 font-bold text-base flex items-center gap-6">
-            <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
-            <span>•</span>
-            <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
-            <span>•</span>
-            <span>🏆 Jadilah Pegawai Terajin bulan ini!</span>
-            <span>•</span>
-            <span>📊 Ekspor data laporan di halaman Arsip.</span>
-            <span>•</span>
-            <span>🔍 Cari laporan dengan cepat di kolom pencarian.</span>
-            <span>•</span>
-            <span>📅 Pantau notifikasi batas waktu di Dashboard.</span>
-            <span>•</span>
-            <span>🖨️ Cetak laporan langsung dari halaman Arsip.</span>
-            <span>•</span>
-            <span>👤 Klik nama pegawai di Papan Peringkat untuk melihat profil.</span>
-            <span>•</span>
-          </div>
-        </div>
+<div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
+  <div className="animate-marquee text-emerald-400 font-bold text-base flex items-center gap-6">
+    <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
+    <span>•</span>
+    <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
+    <span>•</span>
+    <span>🏆 Jadilah Pegawai Terajin bulan ini!</span>
+    <span>•</span>
+    <span>📊 Ekspor data laporan di halaman Arsip.</span>
+    <span>•</span>
+    <span>🔍 Cari laporan dengan cepat di kolom pencarian.</span>
+    <span>•</span>
+    <span>📅 Pantau notifikasi batas waktu di Dashboard.</span>
+    <span>•</span>
+    <span>🖨️ Cetak laporan langsung dari halaman Arsip.</span>
+    <span>•</span>
+  </div>
+</div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1 bg-slate-800/50 rounded-2xl border border-slate-700 shadow-lg p-6 h-fit">

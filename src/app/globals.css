@@ -38,7 +38,6 @@ body {
   animation: fade-in 0.3s ease-out;
 }
 
-/* Animasi Marquee (Running Text) - DIPERLAMBAT */
 @keyframes marquee {
   0% { transform: translateX(100%); }
   100% { transform: translateX(-100%); }
@@ -46,7 +45,7 @@ body {
 .animate-marquee {
   display: inline-block;
   white-space: nowrap;
-  animation: marquee 30s linear infinite; 
+  animation: marquee 60s linear infinite; /* <-- Ubah ke 60s */
 }
 
 /* Animasi Pulse Slow (Opsional untuk notifikasi) */
