@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import * as XLSX from 'xlsx'; // Import library xlsx
 
 function ArsipContent() {
   const [laporan, setLaporan] = useState<any[]>([]);
@@ -52,33 +53,35 @@ function ArsipContent() {
     }
   };
 
-  // FUNGSI EKSPOR EXCEL (CSV) - DIPERBAIKI
+  // FUNGSI EKSPOR EXCEL ASLI (.XLSX)
   const handleExport = () => {
-    const headers = ['Judul Laporan', 'Pelaksana', 'Tanggal Dinas', 'Status', 'Link File'];
-    
-    const rows = laporan.map((item) => [
-      `"${item.judul}"`,
-      `"${item.user?.name || 'Unknown'}"`,
-      `"${new Date(item.tanggalDinas).toLocaleDateString('id-ID')}"`,
-      `"${item.status}"`,
-      `"${item.fileUrl}"`
-    ]);
+    // 1. Siapkan data dalam format array of objects
+    const dataExcel = laporan.map((item) => ({
+      'Judul Laporan': item.judul,
+      'Pelaksana': item.user?.name || 'Unknown',
+      'Tanggal Dinas': new Date(item.tanggalDinas).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+      'Status': item.status.replace('_', ' '),
+      'Link File': item.fileUrl
+    }));
 
-    // Gunakan titik koma (;) sebagai pemisah untuk Excel Indonesia
-    const csvContent = [
-      headers.join(';'), 
-      ...rows.map(row => row.join(';')) 
-    ].join('\n');
+    // 2. Buat worksheet dari data
+    const worksheet = XLSX.utils.json_to_sheet(dataExcel);
 
-    // Tambahkan BOM (\uFEFF) agar Excel membaca encoding UTF-8 dengan benar
-    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `Laporan_Dinas_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // 3. Atur lebar kolom agar rapi
+    worksheet['!cols'] = [
+      { wch: 40 }, // Lebar Judul Laporan
+      { wch: 30 }, // Lebar Pelaksana
+      { wch: 20 }, // Lebar Tanggal Dinas
+      { wch: 15 }, // Lebar Status
+      { wch: 60 }, // Lebar Link File
+    ];
+
+    // 4. Buat workbook dan tambahkan worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan Dinas');
+
+    // 5. Unduh file
+    XLSX.writeFile(workbook, `Laporan_Dinas_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   return (
