@@ -224,22 +224,6 @@ export default function Home() {
             <span>•</span>
             <span>👤 Klik nama pegawai di Papan Peringkat untuk melihat profil.</span>
             <span>•</span>
-            <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
-            <span>•</span>
-            <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
-            <span>•</span>
-            <span>🏆 Jadilah Pegawai Terajin bulan ini!</span>
-            <span>•</span>
-            <span>📊 Ekspor data laporan di halaman Arsip.</span>
-            <span>•</span>
-            <span>🔍 Cari laporan dengan cepat di kolom pencarian.</span>
-            <span>•</span>
-            <span>📅 Pantau notifikasi batas waktu di Dashboard.</span>
-            <span>•</span>
-            <span>🖨️ Cetak laporan langsung dari halaman Arsip.</span>
-            <span>•</span>
-            <span>👤 Klik nama pegawai di Papan Peringkat untuk melihat profil.</span>
-            <span>•</span>
           </div>
         </div>
 

@@ -46,7 +46,7 @@ body {
 .animate-marquee {
   display: inline-block;
   white-space: nowrap;
-  animation: marquee 60s linear infinite; /* <-- Diubah dari 40s ke 60s */
+  animation: marquee 30s linear infinite; 
 }
 
 /* Animasi Pulse Slow (Opsional untuk notifikasi) */
