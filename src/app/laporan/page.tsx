@@ -15,9 +15,15 @@ function ArsipContent() {
   
   const bulanAktif = searchParams.get('bulan');
 
+  // State untuk Modal Ekspor
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [exportOption, setExportOption] = useState('semua');
   const [selectedMonth, setSelectedMonth] = useState('');
+
+  // State untuk Modal Cetak
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [printOption, setPrintOption] = useState('semua');
+  const [printMonth, setPrintMonth] = useState('');
 
   useEffect(() => {
     fetch('/api/upload')
@@ -95,6 +101,68 @@ function ArsipContent() {
     setIsExportModalOpen(false);
   };
 
+  const handlePrint = () => {
+    // Filter data berdasarkan pilihan
+    let dataToPrint = laporan;
+    if (printOption === 'bulan-tertentu' && printMonth) {
+      dataToPrint = laporan.filter((item) => {
+        const date = new Date(item.tanggalDinas);
+        const key = date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        return key === printMonth;
+      });
+    }
+
+    if (dataToPrint.length === 0) {
+      alert('Tidak ada data untuk dicetak pada periode ini.');
+      return;
+    }
+
+    // Simpan data ke state sementara (atau langsung cetak dengan manipulasi DOM)
+    // Karena window.print() mencetak seluruh halaman, kita perlu trik:
+    // 1. Sembunyikan semua baris yang tidak perlu
+    // 2. Cetak
+    // 3. Kembalikan
+    
+    // Cara paling sederhana: reload halaman dengan parameter bulan (jika bulan tertentu)
+    // Tapi itu akan merubah URL. 
+    // Mari kita gunakan trik CSS: sembunyikan yang tidak perlu saat print.
+    
+    // Kita akan inject style sementara untuk print
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @media print {
+        .print-hidden-row { display: none !important; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Tandai baris yang tidak perlu dicetak
+    const rows = document.querySelectorAll('tbody tr');
+    // Ini agak rumit karena kita perlu tahu baris mana yang milik bulan apa.
+    // Alternatif: kita render ulang tabel sementara di modal? Terlalu kompleks.
+    
+    // SOLUSI PALING PRAKTIS: Arahkan ke halaman print khusus
+    // Tapi karena kita sudah punya window.print(), kita gunakan trik:
+    // Filter data di state, lalu panggil window.print(), lalu kembalikan.
+    
+    // Simpan data asli
+    const originalData = laporan;
+    
+    // Set data sementara ke data yang mau dicetak
+    setLaporan(dataToPrint);
+    setIsPrintModalOpen(false);
+    
+    // Tunggu render selesai, lalu print
+    setTimeout(() => {
+      window.print();
+      // Kembalikan data asli setelah print dialog ditutup
+      // (onfocus atau afterprint)
+      setTimeout(() => {
+        setLaporan(originalData);
+      }, 1000);
+    }, 500);
+  };
+
   return (
     <div className="min-h-screen bg-[#2B3241] text-white font-sans p-8">
       <div className="max-w-6xl mx-auto">
@@ -123,9 +191,9 @@ function ArsipContent() {
               📊 Ekspor Excel
             </button>
             
-            {/* TOMBOL CETAK */}
+            {/* TOMBOL CETAK (BUKA MODAL) */}
             <button 
-              onClick={() => window.print()} 
+              onClick={() => setIsPrintModalOpen(true)} 
               className="bg-slate-600 hover:bg-slate-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg"
             >
               🖨️ Cetak
@@ -278,6 +346,48 @@ function ArsipContent() {
               <div className="flex justify-end gap-3 mt-6">
                 <button onClick={() => setIsExportModalOpen(false)} className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-all">Batal</button>
                 <button onClick={handleExport} disabled={exportOption === 'bulan-tertentu' && !selectedMonth} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-all disabled:bg-gray-500 disabled:cursor-not-allowed">Unduh Excel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CETAK */}
+      {isPrintModalOpen && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-slate-600 shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-4">🖨️ Cetak Laporan</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">Pilih Data yang Dicetak:</label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="printOption" value="semua" checked={printOption === 'semua'} onChange={() => setPrintOption('semua')} className="w-4 h-4 text-emerald-500" />
+                    <span className="text-sm text-white">Semua Bulan (Seluruh Data)</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="printOption" value="bulan-tertentu" checked={printOption === 'bulan-tertentu'} onChange={() => setPrintOption('bulan-tertentu')} className="w-4 h-4 text-emerald-500" />
+                    <span className="text-sm text-white">Bulan Tertentu</span>
+                  </label>
+                </div>
+              </div>
+
+              {printOption === 'bulan-tertentu' && (
+                <div>
+                  <label className="block text-sm text-slate-300 mb-2">Pilih Bulan:</label>
+                  <select value={printMonth} onChange={(e) => setPrintMonth(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                    <option value="">-- Pilih Bulan --</option>
+                    {sortedMonths.map((bulan) => (
+                      <option key={bulan} value={bulan}>{bulan}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button onClick={() => setIsPrintModalOpen(false)} className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-all">Batal</button>
+                <button onClick={handlePrint} disabled={printOption === 'bulan-tertentu' && !printMonth} className="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-semibold transition-all disabled:bg-gray-500 disabled:cursor-not-allowed">Cetak Sekarang</button>
               </div>
             </div>
           </div>
