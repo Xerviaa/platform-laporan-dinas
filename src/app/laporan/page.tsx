@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import * as XLSX from 'xlsx'; // Import library xlsx
+import * as XLSX from 'xlsx';
 
 function ArsipContent() {
   const [laporan, setLaporan] = useState<any[]>([]);
@@ -14,6 +14,11 @@ function ArsipContent() {
   const searchParams = useSearchParams();
   
   const bulanAktif = searchParams.get('bulan');
+
+  // State untuk Modal Ekspor
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportOption, setExportOption] = useState('semua'); // 'semua' atau 'bulan-tertentu'
+  const [selectedMonth, setSelectedMonth] = useState('');
 
   useEffect(() => {
     fetch('/api/upload')
@@ -53,10 +58,26 @@ function ArsipContent() {
     }
   };
 
-  // FUNGSI EKSPOR EXCEL ASLI (.XLSX)
+  // FUNGSI EKSPOR EXCEL DENGAN FILTER
   const handleExport = () => {
-    // 1. Siapkan data dalam format array of objects
-    const dataExcel = laporan.map((item) => ({
+    let dataToExport = laporan;
+
+    // Filter jika memilih bulan tertentu
+    if (exportOption === 'bulan-tertentu' && selectedMonth) {
+      dataToExport = laporan.filter((item) => {
+        const date = new Date(item.tanggalDinas);
+        const key = date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        return key === selectedMonth;
+      });
+    }
+
+    if (dataToExport.length === 0) {
+      alert('Tidak ada data untuk diekspor pada periode ini.');
+      return;
+    }
+
+    // Siapkan data Excel
+    const dataExcel = dataToExport.map((item) => ({
       'Judul Laporan': item.judul,
       'Pelaksana': item.user?.name || 'Unknown',
       'Tanggal Dinas': new Date(item.tanggalDinas).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
@@ -64,24 +85,27 @@ function ArsipContent() {
       'Link File': item.fileUrl
     }));
 
-    // 2. Buat worksheet dari data
     const worksheet = XLSX.utils.json_to_sheet(dataExcel);
 
-    // 3. Atur lebar kolom agar rapi
+    // Atur lebar kolom
     worksheet['!cols'] = [
-      { wch: 40 }, // Lebar Judul Laporan
-      { wch: 30 }, // Lebar Pelaksana
-      { wch: 20 }, // Lebar Tanggal Dinas
-      { wch: 15 }, // Lebar Status
-      { wch: 60 }, // Lebar Link File
+      { wch: 40 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 60 },
     ];
 
-    // 4. Buat workbook dan tambahkan worksheet
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan Dinas');
 
-    // 5. Unduh file
-    XLSX.writeFile(workbook, `Laporan_Dinas_${new Date().toISOString().split('T')[0]}.xlsx`);
+    // Nama file dinamis
+    const fileName = exportOption === 'semua' 
+      ? `Laporan_Dinas_Semua_${new Date().toISOString().split('T')[0]}.xlsx`
+      : `Laporan_Dinas_${selectedMonth.replace(' ', '_')}.xlsx`;
+
+    XLSX.writeFile(workbook, fileName);
+    setIsExportModalOpen(false);
   };
 
   return (
@@ -104,8 +128,9 @@ function ArsipContent() {
             <p className="text-gray-300 mt-1">Seluruh riwayat perjalanan dinas</p>
           </div>
           <div className="flex gap-2">
+            {/* TOMBOL EKSPOR EXCEL (BUKA MODAL) */}
             <button 
-              onClick={handleExport}
+              onClick={() => setIsExportModalOpen(true)}
               className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-emerald-900/30"
             >
               📊 Ekspor Excel
@@ -221,6 +246,77 @@ function ArsipContent() {
           )}
         </div>
       </div>
+
+      {/* MODAL EKSPOR EXCEL */}
+      {isExportModalOpen && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-slate-600 shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-4">📊 Ekspor ke Excel</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">Pilih Data yang Diekspor:</label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="exportOption" 
+                      value="semua" 
+                      checked={exportOption === 'semua'} 
+                      onChange={() => setExportOption('semua')}
+                      className="w-4 h-4 text-emerald-500"
+                    />
+                    <span className="text-sm text-white">Semua Bulan (Seluruh Data)</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="exportOption" 
+                      value="bulan-tertentu" 
+                      checked={exportOption === 'bulan-tertentu'} 
+                      onChange={() => setExportOption('bulan-tertentu')}
+                      className="w-4 h-4 text-emerald-500"
+                    />
+                    <span className="text-sm text-white">Bulan Tertentu</span>
+                  </label>
+                </div>
+              </div>
+
+              {exportOption === 'bulan-tertentu' && (
+                <div>
+                  <label className="block text-sm text-slate-300 mb-2">Pilih Bulan:</label>
+                  <select 
+                    value={selectedMonth} 
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="">-- Pilih Bulan --</option>
+                    {sortedMonths.map((bulan) => (
+                      <option key={bulan} value={bulan}>{bulan}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button 
+                  onClick={() => setIsExportModalOpen(false)} 
+                  className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-all"
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={handleExport}
+                  disabled={exportOption === 'bulan-tertentu' && !selectedMonth}
+                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-all disabled:bg-gray-500 disabled:cursor-not-allowed"
+                >
+                  Unduh Excel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
