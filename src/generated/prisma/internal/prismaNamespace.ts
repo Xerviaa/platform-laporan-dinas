@@ -398,7 +398,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
-  Laporan: 'Laporan'
+  Laporan: 'Laporan',
+  Pengaturan: 'Pengaturan'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "laporan"
+    modelProps: "user" | "laporan" | "pengaturan"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -566,6 +567,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Pengaturan: {
+      payload: Prisma.$PengaturanPayload<ExtArgs>
+      fields: Prisma.PengaturanFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PengaturanFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PengaturanPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PengaturanFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PengaturanPayload>
+        }
+        findFirst: {
+          args: Prisma.PengaturanFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PengaturanPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PengaturanFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PengaturanPayload>
+        }
+        findMany: {
+          args: Prisma.PengaturanFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PengaturanPayload>[]
+        }
+        create: {
+          args: Prisma.PengaturanCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PengaturanPayload>
+        }
+        createMany: {
+          args: Prisma.PengaturanCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PengaturanCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PengaturanPayload>[]
+        }
+        delete: {
+          args: Prisma.PengaturanDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PengaturanPayload>
+        }
+        update: {
+          args: Prisma.PengaturanUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PengaturanPayload>
+        }
+        deleteMany: {
+          args: Prisma.PengaturanDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PengaturanUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PengaturanUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PengaturanPayload>[]
+        }
+        upsert: {
+          args: Prisma.PengaturanUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PengaturanPayload>
+        }
+        aggregate: {
+          args: Prisma.PengaturanAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePengaturan>
+        }
+        groupBy: {
+          args: Prisma.PengaturanGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PengaturanGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PengaturanCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PengaturanCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -629,6 +704,14 @@ export const LaporanScalarFieldEnum = {
 export type LaporanScalarFieldEnum = (typeof LaporanScalarFieldEnum)[keyof typeof LaporanScalarFieldEnum]
 
 
+export const PengaturanScalarFieldEnum = {
+  id: 'id',
+  logoUrl: 'logoUrl'
+} as const
+
+export type PengaturanScalarFieldEnum = (typeof PengaturanScalarFieldEnum)[keyof typeof PengaturanScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -643,6 +726,14 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -845,6 +936,7 @@ export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaC
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   laporan?: Prisma.LaporanOmit
+  pengaturan?: Prisma.PengaturanOmit
 }
 
 /* Types for Logging */

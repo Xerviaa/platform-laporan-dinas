@@ -25,3 +25,7 @@ model Laporan {
   status       String   @default("TEPAT_WAKTU")
   createdAt    DateTime @default(now())
 }
+model Pengaturan {
+  id        String   @id @default("global")
+  logoUrl   String?
+}

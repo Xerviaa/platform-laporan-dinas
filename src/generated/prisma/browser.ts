@@ -27,3 +27,8 @@ export type User = Prisma.UserModel
  * 
  */
 export type Laporan = Prisma.LaporanModel
+/**
+ * Model Pengaturan
+ * 
+ */
+export type Pengaturan = Prisma.PengaturanModel

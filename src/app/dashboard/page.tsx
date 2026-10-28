@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import DynamicLogo from '@/components/DynamicLogo'; // Import komponen logo dinamis
 
 export default function Home() {
   const [laporan, setLaporan] = useState<any[]>([]);
@@ -160,12 +161,17 @@ export default function Home() {
         )}
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 border-b border-slate-700 pb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">
-              LAPORAN <span className="text-emerald-400">DINAS</span>
-            </h1>
-            <p className="text-slate-400 mt-1">Platform Internal Monitoring & Pengarsipan Perjalanan Dinas</p>
+          {/* LOGO DINAMIS + TEKS HEADER */}
+          <div className="flex items-center gap-4">
+            <DynamicLogo className="h-12 w-auto object-contain" />
+            <div>
+              <h1 className="text-3xl font-bold text-white tracking-tight">
+                LAPORAN <span className="text-emerald-400">DINAS</span>
+              </h1>
+              <p className="text-slate-400 mt-1">Platform Internal Monitoring & Pengarsipan Perjalanan Dinas</p>
+            </div>
           </div>
+          
           <div className="flex flex-wrap items-center gap-2">
             {/* JAM REAL-TIME DI HEADER */}
             <div className="text-right mr-4 hidden md:block border-r border-slate-700 pr-4">
@@ -177,6 +183,11 @@ export default function Home() {
                 {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
             </div>
+
+            {/* TOMBOL PENGATURAN */}
+            <Link href="/pengaturan" className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-sm">
+              ⚙️ Pengaturan
+            </Link>
 
             <Link href="/laporan" className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-sm">
               📁 Arsip
@@ -226,24 +237,24 @@ export default function Home() {
         </div>
 
         {/* RUNNING TEXT / MARQUEE */}
-<div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
-  <div className="animate-marquee text-emerald-400 font-bold text-base flex items-center gap-6">
-    <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
-    <span>•</span>
-    <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
-    <span>•</span>
-    <span>🏆 Jadilah Pegawai Terajin bulan ini!</span>
-    <span>•</span>
-    <span>📊 Ekspor data laporan di halaman Arsip.</span>
-    <span>•</span>
-    <span>🔍 Cari laporan dengan cepat di kolom pencarian.</span>
-    <span>•</span>
-    <span>📅 Pantau notifikasi batas waktu di Dashboard.</span>
-    <span>•</span>
-    <span>🖨️ Cetak laporan langsung dari halaman Arsip.</span>
-    <span>•</span>
-  </div>
-</div>
+        <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
+          <div className="animate-marquee text-emerald-400 font-bold text-base flex items-center gap-6">
+            <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
+            <span>•</span>
+            <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
+            <span>•</span>
+            <span>🏆 Jadilah Pegawai Terajin bulan ini!</span>
+            <span>•</span>
+            <span>📊 Ekspor data laporan di halaman Arsip.</span>
+            <span>•</span>
+            <span>🔍 Cari laporan dengan cepat di kolom pencarian.</span>
+            <span>•</span>
+            <span>📅 Pantau notifikasi batas waktu di Dashboard.</span>
+            <span>•</span>
+            <span>🖨️ Cetak laporan langsung dari halaman Arsip.</span>
+            <span>•</span>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1 bg-slate-800/50 rounded-2xl border border-slate-700 shadow-lg p-6 h-fit">

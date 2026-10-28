@@ -10,4 +10,5 @@
  */
 export type * from './models/User'
 export type * from './models/Laporan'
+export type * from './models/Pengaturan'
 export type * from './commonInputTypes'
