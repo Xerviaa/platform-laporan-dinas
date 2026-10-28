@@ -99,12 +99,14 @@ function ArsipContent() {
     <div className="min-h-screen bg-[#2B3241] text-white font-sans p-8">
       <div className="max-w-6xl mx-auto">
         
+        {/* Kop Surat Print */}
         <div className="hidden print:block text-center mb-8 border-b-2 border-black pb-4">
           <h2 className="text-xl font-bold text-black uppercase">Kementerian Kelautan dan Perikanan</h2>
           <h3 className="text-lg font-semibold text-black">Balai Pengendalian dan Pengawasan Mutu Hasil Kelautan dan Perikanan Denpasar</h3>
           <p className="text-sm text-black mt-2">Arsip Laporan Perjalanan Dinas</p>
         </div>
 
+        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 border-b border-gray-600 pb-6 print:hidden">
           <div>
             <h1 className="text-3xl font-bold text-white tracking-wide">
@@ -113,24 +115,29 @@ function ArsipContent() {
             <p className="text-gray-300 mt-1">Seluruh riwayat perjalanan dinas</p>
           </div>
           <div className="flex gap-2">
+            {/* TOMBOL EKSPOR EXCEL */}
             <button 
               onClick={() => setIsExportModalOpen(true)}
               className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-emerald-900/30"
             >
               📊 Ekspor Excel
             </button>
+            
+            {/* TOMBOL CETAK */}
             <button 
               onClick={() => window.print()} 
               className="bg-slate-600 hover:bg-slate-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg"
             >
               🖨️ Cetak
             </button>
+
             <Link href="/dashboard" className="bg-[#3A4355] hover:bg-gray-600 border border-gray-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm">
               &larr; Dashboard
             </Link>
           </div>
         </div>
 
+        {/* Search Bar */}
         <div className="bg-[#3A4355] rounded-t-2xl border border-gray-600 p-6 flex justify-between items-center print:hidden">
           <div>
             <h2 className="text-xl font-semibold text-white flex items-center gap-2">
@@ -151,6 +158,7 @@ function ArsipContent() {
           </div>
         </div>
 
+        {/* Daftar Laporan Dikelompokkan */}
         <div className="space-y-4">
           {loading ? (
             <div className="bg-[#3A4355] border border-gray-600 rounded-b-2xl p-8 text-center text-gray-400">
@@ -234,6 +242,7 @@ function ArsipContent() {
         </div>
       </div>
 
+      {/* MODAL EKSPOR EXCEL */}
       {isExportModalOpen && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-slate-600 shadow-2xl">

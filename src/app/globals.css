@@ -74,3 +74,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
+@media print {
+  @page { size: A4 landscape; margin: 1cm; }
+  body { background-color: white !important; color: black !important; }
+  .print\:hidden { display: none !important; }
+  .bg-\[\#2B3241\] { background-color: white !important; }
+  .bg-\[\#3A4355\] { background-color: white !important; border-color: black !important; }
+  .text-white { color: black !important; }
+  .text-emerald-400 { color: black !important; }
+  .text-gray-300 { color: black !important; }
+  .border-gray-600 { border-color: black !important; }
+}
