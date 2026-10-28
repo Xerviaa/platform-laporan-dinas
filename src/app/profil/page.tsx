@@ -14,7 +14,6 @@ function ProfilContent() {
     fetch('/api/upload')
       .then((res) => res.json())
       .then((data) => {
-        // Filter laporan hanya untuk pegawai ini
         const filtered = data.filter((item: any) => item.user?.name === nama);
         setLaporan(filtered);
         setLoading(false);
@@ -33,12 +32,10 @@ function ProfilContent() {
     <div className="min-h-screen bg-[#0f172a] text-slate-200 font-sans p-8 animate-fade-in">
       <div className="max-w-4xl mx-auto">
         
-        {/* Tombol Kembali */}
-        <Link href="/" className="text-slate-400 hover:text-white mb-6 inline-flex items-center gap-2 bg-slate-800 px-4 py-2 rounded-lg border border-slate-600 transition-colors">
+        <Link href="/dashboard" className="text-slate-400 hover:text-white mb-6 inline-flex items-center gap-2 bg-slate-800 px-4 py-2 rounded-lg border border-slate-600 transition-colors">
           &larr; Kembali ke Dashboard
         </Link>
 
-        {/* Header Profil */}
         <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-8 mb-8 shadow-lg text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500"></div>
           <div className="w-24 h-24 bg-slate-700 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl border-4 border-slate-600 shadow-inner">
@@ -65,7 +62,6 @@ function ProfilContent() {
           </div>
         </div>
 
-        {/* Riwayat Laporan */}
         <div className="bg-slate-800/50 rounded-2xl border border-slate-700 shadow-lg overflow-hidden">
           <div className="p-6 border-b border-slate-700">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">

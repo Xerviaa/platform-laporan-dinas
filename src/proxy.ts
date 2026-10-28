@@ -13,7 +13,7 @@ export function proxy(request: NextRequest) {
 
   // Jika sudah login tapi mencoba buka /login, arahkan ke dashboard
   if (session && request.nextUrl.pathname === '/login') {
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect(new URL('/dashboard', request.url)); // <-- Diubah ke /dashboard
   }
 
   return NextResponse.next();

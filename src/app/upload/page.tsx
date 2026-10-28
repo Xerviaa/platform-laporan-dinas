@@ -47,7 +47,7 @@ export default function UploadLaporan() {
 
       if (res.ok) {
         setShowToast(true);
-        setTimeout(() => { router.push('/'); }, 2000);
+        setTimeout(() => { router.push('/dashboard'); }, 2000); // Ubah ke /dashboard
       } else {
         alert('Gagal upload laporan.');
       }
@@ -109,7 +109,7 @@ export default function UploadLaporan() {
       )}
 
       <div className="max-w-3xl mx-auto">
-        <Link href="/" className="text-gray-300 hover:text-white mb-6 inline-flex items-center gap-2 bg-[#3A4355] px-4 py-2 rounded-lg border border-gray-600 transition-colors shadow-sm">
+        <Link href="/dashboard" className="text-gray-300 hover:text-white mb-6 inline-flex items-center gap-2 bg-[#3A4355] px-4 py-2 rounded-lg border border-gray-600 transition-colors shadow-sm">
           &larr; Kembali ke Menu Utama
         </Link>
 

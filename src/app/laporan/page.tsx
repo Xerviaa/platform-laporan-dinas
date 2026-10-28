@@ -15,9 +15,8 @@ function ArsipContent() {
   
   const bulanAktif = searchParams.get('bulan');
 
-  // State untuk Modal Ekspor
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const [exportOption, setExportOption] = useState('semua'); // 'semua' atau 'bulan-tertentu'
+  const [exportOption, setExportOption] = useState('semua');
   const [selectedMonth, setSelectedMonth] = useState('');
 
   useEffect(() => {
@@ -58,11 +57,9 @@ function ArsipContent() {
     }
   };
 
-  // FUNGSI EKSPOR EXCEL DENGAN FILTER
   const handleExport = () => {
     let dataToExport = laporan;
 
-    // Filter jika memilih bulan tertentu
     if (exportOption === 'bulan-tertentu' && selectedMonth) {
       dataToExport = laporan.filter((item) => {
         const date = new Date(item.tanggalDinas);
@@ -76,7 +73,6 @@ function ArsipContent() {
       return;
     }
 
-    // Siapkan data Excel
     const dataExcel = dataToExport.map((item) => ({
       'Judul Laporan': item.judul,
       'Pelaksana': item.user?.name || 'Unknown',
@@ -86,20 +82,11 @@ function ArsipContent() {
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataExcel);
-
-    // Atur lebar kolom
-    worksheet['!cols'] = [
-      { wch: 40 },
-      { wch: 30 },
-      { wch: 20 },
-      { wch: 15 },
-      { wch: 60 },
-    ];
+    worksheet['!cols'] = [{ wch: 40 }, { wch: 30 }, { wch: 20 }, { wch: 15 }, { wch: 60 }];
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan Dinas');
 
-    // Nama file dinamis
     const fileName = exportOption === 'semua' 
       ? `Laporan_Dinas_Semua_${new Date().toISOString().split('T')[0]}.xlsx`
       : `Laporan_Dinas_${selectedMonth.replace(' ', '_')}.xlsx`;
@@ -112,14 +99,12 @@ function ArsipContent() {
     <div className="min-h-screen bg-[#2B3241] text-white font-sans p-8">
       <div className="max-w-6xl mx-auto">
         
-        {/* Kop Surat Print */}
         <div className="hidden print:block text-center mb-8 border-b-2 border-black pb-4">
           <h2 className="text-xl font-bold text-black uppercase">Kementerian Kelautan dan Perikanan</h2>
           <h3 className="text-lg font-semibold text-black">Balai Pengendalian dan Pengawasan Mutu Hasil Kelautan dan Perikanan Denpasar</h3>
           <p className="text-sm text-black mt-2">Arsip Laporan Perjalanan Dinas</p>
         </div>
 
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 border-b border-gray-600 pb-6 print:hidden">
           <div>
             <h1 className="text-3xl font-bold text-white tracking-wide">
@@ -128,21 +113,24 @@ function ArsipContent() {
             <p className="text-gray-300 mt-1">Seluruh riwayat perjalanan dinas</p>
           </div>
           <div className="flex gap-2">
-            {/* TOMBOL EKSPOR EXCEL (BUKA MODAL) */}
             <button 
               onClick={() => setIsExportModalOpen(true)}
               className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-emerald-900/30"
             >
               📊 Ekspor Excel
             </button>
-
-            <Link href="/" className="bg-[#3A4355] hover:bg-gray-600 border border-gray-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm">
+            <button 
+              onClick={() => window.print()} 
+              className="bg-slate-600 hover:bg-slate-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg"
+            >
+              🖨️ Cetak
+            </button>
+            <Link href="/dashboard" className="bg-[#3A4355] hover:bg-gray-600 border border-gray-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm">
               &larr; Dashboard
             </Link>
           </div>
         </div>
 
-        {/* Search Bar */}
         <div className="bg-[#3A4355] rounded-t-2xl border border-gray-600 p-6 flex justify-between items-center print:hidden">
           <div>
             <h2 className="text-xl font-semibold text-white flex items-center gap-2">
@@ -163,7 +151,6 @@ function ArsipContent() {
           </div>
         </div>
 
-        {/* Daftar Laporan Dikelompokkan */}
         <div className="space-y-4">
           {loading ? (
             <div className="bg-[#3A4355] border border-gray-600 rounded-b-2xl p-8 text-center text-gray-400">
@@ -247,7 +234,6 @@ function ArsipContent() {
         </div>
       </div>
 
-      {/* MODAL EKSPOR EXCEL */}
       {isExportModalOpen && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-slate-600 shadow-2xl">
@@ -258,25 +244,11 @@ function ArsipContent() {
                 <label className="block text-sm text-slate-300 mb-2">Pilih Data yang Diekspor:</label>
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="radio" 
-                      name="exportOption" 
-                      value="semua" 
-                      checked={exportOption === 'semua'} 
-                      onChange={() => setExportOption('semua')}
-                      className="w-4 h-4 text-emerald-500"
-                    />
+                    <input type="radio" name="exportOption" value="semua" checked={exportOption === 'semua'} onChange={() => setExportOption('semua')} className="w-4 h-4 text-emerald-500" />
                     <span className="text-sm text-white">Semua Bulan (Seluruh Data)</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="radio" 
-                      name="exportOption" 
-                      value="bulan-tertentu" 
-                      checked={exportOption === 'bulan-tertentu'} 
-                      onChange={() => setExportOption('bulan-tertentu')}
-                      className="w-4 h-4 text-emerald-500"
-                    />
+                    <input type="radio" name="exportOption" value="bulan-tertentu" checked={exportOption === 'bulan-tertentu'} onChange={() => setExportOption('bulan-tertentu')} className="w-4 h-4 text-emerald-500" />
                     <span className="text-sm text-white">Bulan Tertentu</span>
                   </label>
                 </div>
@@ -285,11 +257,7 @@ function ArsipContent() {
               {exportOption === 'bulan-tertentu' && (
                 <div>
                   <label className="block text-sm text-slate-300 mb-2">Pilih Bulan:</label>
-                  <select 
-                    value={selectedMonth} 
-                    onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500"
-                  >
+                  <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
                     <option value="">-- Pilih Bulan --</option>
                     {sortedMonths.map((bulan) => (
                       <option key={bulan} value={bulan}>{bulan}</option>
@@ -299,19 +267,8 @@ function ArsipContent() {
               )}
 
               <div className="flex justify-end gap-3 mt-6">
-                <button 
-                  onClick={() => setIsExportModalOpen(false)} 
-                  className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-all"
-                >
-                  Batal
-                </button>
-                <button 
-                  onClick={handleExport}
-                  disabled={exportOption === 'bulan-tertentu' && !selectedMonth}
-                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-all disabled:bg-gray-500 disabled:cursor-not-allowed"
-                >
-                  Unduh Excel
-                </button>
+                <button onClick={() => setIsExportModalOpen(false)} className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold transition-all">Batal</button>
+                <button onClick={handleExport} disabled={exportOption === 'bulan-tertentu' && !selectedMonth} className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-all disabled:bg-gray-500 disabled:cursor-not-allowed">Unduh Excel</button>
               </div>
             </div>
           </div>
