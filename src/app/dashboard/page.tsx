@@ -135,6 +135,17 @@ export default function Home() {
           </div>
         </div>
 
+        {/* RUNNING TEXT / MARQUEE */}
+        <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
+          <div className="animate-marquee text-emerald-400 font-semibold text-sm flex items-center gap-8">
+            <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
+            <span>📌 Jangan lupa upload laporan maksimal 3 hari setelah pelaksanaan dinas.</span>
+            <span>🏆 Pegawai terajin bulan ini akan mendapatkan apresiasi khusus!</span>
+            <span>📊 Gunakan fitur Ekspor Excel di halaman Arsip untuk rekap data.</span>
+            <span>🔍 Cari laporan dengan cepat menggunakan kolom pencarian di bawah.</span>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
