@@ -138,8 +138,7 @@ export default function Home() {
         {/* RUNNING TEXT / MARQUEE - LEBIH PENDEK & LAMBAT */}
         <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
           <div className="animate-marquee text-emerald-400 font-semibold text-sm flex items-center gap-12">
-            <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
-            <span>📌 Upload laporan maksimal 3 hari setelah dinas.</span>
+            <span>📌 Upload laporan maksimal 3 hari setelah perjalanan dinas.</span>
             <span>🏆 Jadilah Pegawai Terajin bulan ini!</span>
             <span>📊 Ekspor data laporan di halaman Arsip.</span>
           </div>
