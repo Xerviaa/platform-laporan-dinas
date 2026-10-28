@@ -1,4 +1,4 @@
-import { put } from '@vercel/blob';
+import { prisma } from '../../../../lib/prisma';
 import { PrismaClient } from '../../../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { NextResponse } from 'next/server';

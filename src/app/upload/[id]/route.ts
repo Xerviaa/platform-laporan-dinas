@@ -1,46 +1,33 @@
-import { PrismaClient } from '../../../generated/prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { prisma } from '../../../lib/prisma';
 import { NextResponse } from 'next/server';
 import { del } from '@vercel/blob';
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
-
-// FUNGSI HAPUS LAPORAN
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    const laporan = await prisma.laporan.findUnique({ where: { id } });
 
-    // 1. Cari laporan untuk mendapatkan URL file
-    const laporan = await prisma.laporan.findUnique({
-      where: { id },
-    });
+    if (!laporan) return NextResponse.json({ error: 'Laporan tidak ditemukan' }, { status: 404 });
 
-    if (!laporan) {
-      return NextResponse.json({ error: 'Laporan tidak ditemukan' }, { status: 404 });
-    }
-
-    // 2. Hapus file dari Vercel Blob (jika ada)
     if (laporan.fileUrl) {
-      await del(laporan.fileUrl);
+      try {
+        await del(laporan.fileUrl);
+      } catch (blobError) {
+        console.warn("Gagal hapus file Blob:", blobError);
+      }
     }
 
-    // 3. Hapus data dari database
-    await prisma.laporan.delete({
-      where: { id },
-    });
-
+    await prisma.laporan.delete({ where: { id } });
     return NextResponse.json({ success: true, message: 'Laporan berhasil dihapus' });
   } catch (error) {
-    console.error("Error delete laporan:", error);
+    console.error("Error delete:", error);
     return NextResponse.json({ error: 'Gagal menghapus laporan' }, { status: 500 });
   }
 }
 
-// FUNGSI EDIT LAPORAN (Hanya Judul & Tanggal)
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -57,16 +44,12 @@ export async function PUT(
 
     const updatedLaporan = await prisma.laporan.update({
       where: { id },
-      data: {
-        judul: judul,
-        tanggalDinas: tglDinas,
-        status: status,
-      },
+      data: { judul, tanggalDinas: tglDinas, status },
     });
 
     return NextResponse.json({ success: true, data: updatedLaporan });
   } catch (error) {
-    console.error("Error edit laporan:", error);
+    console.error("Error edit:", error);
     return NextResponse.json({ error: 'Gagal mengedit laporan' }, { status: 500 });
   }
 }
