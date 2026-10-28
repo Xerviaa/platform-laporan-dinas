@@ -16,6 +16,9 @@ export default function Home() {
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // STATE UNTUK JAM REAL-TIME
+  const [currentTime, setCurrentTime] = useState(new Date());
+
   const router = useRouter();
 
   const fetchData = (showLoading = false) => {
@@ -55,6 +58,12 @@ export default function Home() {
     }, 30000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // EFFECT UNTUK JAM REAL-TIME (UPDATE SETIAP DETIK)
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const handleLogout = async () => {
@@ -158,6 +167,17 @@ export default function Home() {
             <p className="text-slate-400 mt-1">Platform Internal Monitoring & Pengarsipan Perjalanan Dinas</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            {/* JAM REAL-TIME DI HEADER */}
+            <div className="text-right mr-4 hidden md:block border-r border-slate-700 pr-4">
+              <p className="text-xs text-slate-400 uppercase tracking-wider">Waktu Server</p>
+              <p className="text-xl font-bold text-emerald-400 font-mono">
+                {currentTime.toLocaleTimeString('id-ID')}
+              </p>
+              <p className="text-xs text-slate-500">
+                {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              </p>
+            </div>
+
             <Link href="/laporan" className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-sm">
               📁 Arsip
             </Link>
@@ -205,7 +225,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* RUNNING TEXT / MARQUEE - DIPINDAH KE BAWAH KARTU STATISTIK */}
+        {/* RUNNING TEXT / MARQUEE */}
         <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
           <div className="animate-marquee text-emerald-400 font-bold text-base flex items-center gap-6">
             <span>📢 Selamat Datang di Platform Laporan Dinas!</span>

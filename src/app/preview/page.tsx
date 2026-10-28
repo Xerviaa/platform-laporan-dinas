@@ -1,12 +1,12 @@
 'use client';
 
-import { useSearchParams, useRouter } from 'next/navigation'; // Tambahkan useRouter
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 function PreviewContent() {
   const searchParams = useSearchParams();
-  const router = useRouter(); // Inisialisasi router
+  const router = useRouter();
   const fileUrl = searchParams.get('url');
   const fileName = searchParams.get('name') || 'File Laporan';
 
@@ -16,6 +16,10 @@ function PreviewContent() {
 
   // Menggunakan Google Docs Viewer untuk menampilkan DOCX/PDF di dalam iframe
   const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
     <div className="min-h-screen bg-[#2B3241] text-white font-sans p-8 flex flex-col">
@@ -31,14 +35,23 @@ function PreviewContent() {
             </p>
           </div>
           <div className="flex gap-3 flex-shrink-0">
-            {/* TOMBOL KEMBALI: Menggunakan router.back() */}
+            {/* TOMBOL KEMBALI */}
             <button 
               onClick={() => router.back()}
               className="bg-[#2B3241] hover:bg-gray-600 border border-gray-500 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm"
             >
               Kembali
             </button>
+
+            {/* TOMBOL CETAK PDF */}
+            <button 
+              onClick={handlePrint}
+              className="bg-slate-600 hover:bg-slate-500 text-white px-4 py-2 rounded-lg font-semibold transition-all text-sm flex items-center gap-2"
+            >
+              🖨️ Cetak PDF
+            </button>
             
+            {/* TOMBOL DOWNLOAD */}
             <a 
               href={fileUrl} 
               download 

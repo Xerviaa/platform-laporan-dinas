@@ -41,11 +41,14 @@ export default function LoginPage() {
       {/* Card Login Glassmorphism */}
       <div className="bg-slate-800/50 backdrop-blur-xl p-8 rounded-3xl border border-slate-600 shadow-2xl w-full max-w-md relative z-10 animate-fade-in">
         
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            LAPORAN <span className="text-emerald-400">DINAS</span>
-          </h1>
-          <p className="text-slate-400">Silakan login untuk melanjutkan</p>
+        {/* LOGO DI BAGIAN ATAS */}
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img 
+            src="/logo.png" 
+            alt="Logo Laporan Dinas" 
+            className="w-48 md:w-64 h-auto object-contain mb-4"
+          />
+          <p className="text-slate-400 mt-2">Silakan login untuk melanjutkan</p>
         </div>
 
         {error && (
@@ -105,6 +108,12 @@ export default function LoginPage() {
             ) : 'Masuk'}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-xs text-slate-500">
+            Lupa password? Hubungi Admin di <span className="text-emerald-400 font-medium">admin@kantor.com</span>
+          </p>
+        </div>
 
       </div>
     </div>
