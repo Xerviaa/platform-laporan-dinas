@@ -106,12 +106,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-xs text-slate-500">
-            Lupa password? Hubungi Admin di <span className="text-emerald-400 font-medium">admin@kantor.com</span>
-          </p>
-        </div>
-
       </div>
     </div>
   );

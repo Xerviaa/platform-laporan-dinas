@@ -12,8 +12,8 @@ export default function Home() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   
   // State untuk Filter & Pagination
-  const [filterStatus, setFilterStatus] = useState('semua'); // 'semua', 'TEPAT_WAKTU', 'TERLAMBAT'
-  const [itemsPerPage, setItemsPerPage] = useState(5); // 5, 10, 25
+  const [filterStatus, setFilterStatus] = useState('semua');
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
   const router = useRouter();
@@ -49,12 +49,12 @@ export default function Home() {
   useEffect(() => {
     fetchData(true);
     
-    // FITUR 5: Notifikasi Real-time (Auto-refresh setiap 30 detik)
+    // Notifikasi Real-time (Auto-refresh setiap 30 detik)
     const interval = setInterval(() => {
-      fetchData(false); // Fetch tanpa loading spinner agar tidak mengganggu
+      fetchData(false);
     }, 30000);
 
-    return () => clearInterval(interval); // Bersihkan interval saat komponen unmount
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogout = async () => {
@@ -170,7 +170,42 @@ export default function Home() {
           </div>
         </div>
 
-        {/* RUNNING TEXT / MARQUEE */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+            <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+            <div className="flex justify-between items-center pl-2">
+              <div>
+                <p className="text-slate-400 font-medium mb-1 text-sm">Total Laporan</p>
+                <p className="text-4xl font-bold text-white">{loading ? '-' : totalLaporan}</p>
+              </div>
+              <div className="bg-blue-500/10 p-4 rounded-full border border-blue-500/20 text-blue-400 group-hover:scale-110 transition-transform"><span className="text-2xl">📄</span></div>
+            </div>
+          </div>
+          
+          <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+            <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
+            <div className="flex justify-between items-center pl-2">
+              <div>
+                <p className="text-slate-400 font-medium mb-1 text-sm">Tepat Waktu</p>
+                <p className="text-4xl font-bold text-emerald-400">{loading ? '-' : tepatWaktu}</p>
+              </div>
+              <div className="bg-emerald-500/10 p-4 rounded-full border border-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform"><span className="text-2xl">✅</span></div>
+            </div>
+          </div>
+          
+          <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+            <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+            <div className="flex justify-between items-center pl-2">
+              <div>
+                <p className="text-slate-400 font-medium mb-1 text-sm">Terlambat</p>
+                <p className="text-4xl font-bold text-orange-400">{loading ? '-' : terlambat}</p>
+              </div>
+              <div className="bg-orange-500/10 p-4 rounded-full border border-orange-500/20 text-orange-400 group-hover:scale-110 transition-transform"><span className="text-2xl">⏰</span></div>
+            </div>
+          </div>
+        </div>
+
+        {/* RUNNING TEXT / MARQUEE - DIPINDAH KE BAWAH KARTU STATISTIK */}
         <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-inner py-3 print:hidden">
           <div className="animate-marquee text-emerald-400 font-bold text-base flex items-center gap-6">
             <span>📢 Selamat Datang di Platform Laporan Dinas!</span>
@@ -205,41 +240,6 @@ export default function Home() {
             <span>•</span>
             <span>👤 Klik nama pegawai di Papan Peringkat untuk melihat profil.</span>
             <span>•</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-            <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-            <div className="flex justify-between items-center pl-2">
-              <div>
-                <p className="text-slate-400 font-medium mb-1 text-sm">Total Laporan</p>
-                <p className="text-4xl font-bold text-white">{loading ? '-' : totalLaporan}</p>
-              </div>
-              <div className="bg-blue-500/10 p-4 rounded-full border border-blue-500/20 text-blue-400 group-hover:scale-110 transition-transform"><span className="text-2xl">📄</span></div>
-            </div>
-          </div>
-          
-          <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-            <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-            <div className="flex justify-between items-center pl-2">
-              <div>
-                <p className="text-slate-400 font-medium mb-1 text-sm">Tepat Waktu</p>
-                <p className="text-4xl font-bold text-emerald-400">{loading ? '-' : tepatWaktu}</p>
-              </div>
-              <div className="bg-emerald-500/10 p-4 rounded-full border border-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform"><span className="text-2xl">✅</span></div>
-            </div>
-          </div>
-          
-          <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-2xl shadow-lg relative overflow-hidden group hover:bg-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-            <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
-            <div className="flex justify-between items-center pl-2">
-              <div>
-                <p className="text-slate-400 font-medium mb-1 text-sm">Terlambat</p>
-                <p className="text-4xl font-bold text-orange-400">{loading ? '-' : terlambat}</p>
-              </div>
-              <div className="bg-orange-500/10 p-4 rounded-full border border-orange-500/20 text-orange-400 group-hover:scale-110 transition-transform"><span className="text-2xl">⏰</span></div>
-            </div>
           </div>
         </div>
 
@@ -282,7 +282,6 @@ export default function Home() {
             <div className="p-6 border-b border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/50">
               <h2 className="text-xl font-bold text-white flex items-center gap-2"><span className="w-2 h-6 bg-emerald-500 rounded-sm"></span> Daftar Laporan Terbaru</h2>
               <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
-                {/* FITUR 1: Filter Status */}
                 <select 
                   value={filterStatus} 
                   onChange={(e) => setFilterStatus(e.target.value)}
@@ -363,7 +362,6 @@ export default function Home() {
               </table>
             </div>
 
-            {/* FITUR 2: Pagination (Tampilkan 5/10/25 & Navigasi Halaman) */}
             <div className="p-4 border-t border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900/30">
               <div className="flex items-center gap-2 text-sm text-slate-400">
                 <span>Tampilkan</span>
