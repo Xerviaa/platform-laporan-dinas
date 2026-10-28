@@ -46,13 +46,38 @@ function ArsipContent() {
   });
 
   const toggleMonth = (bulan: string) => {
-    // Jika bulan yang diklik sama dengan yang aktif, tutup (hapus dari URL)
-    // Jika berbeda, buka (simpan ke URL)
     if (bulanAktif === bulan) {
       router.push('/laporan', { scroll: false });
     } else {
       router.push(`/laporan?bulan=${encodeURIComponent(bulan)}`, { scroll: false });
     }
+  };
+
+  // FUNGSI EKSPOR EXCEL (CSV)
+  const handleExport = () => {
+    const headers = ['Judul Laporan', 'Pelaksana', 'Tanggal Dinas', 'Status', 'Link File'];
+    
+    const rows = laporan.map((item) => [
+      `"${item.judul}"`,
+      `"${item.user?.name || 'Unknown'}"`,
+      `"${new Date(item.tanggalDinas).toLocaleDateString('id-ID')}"`,
+      `"${item.status}"`,
+      `"${item.fileUrl}"`
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Laporan_Dinas_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -75,6 +100,14 @@ function ArsipContent() {
             <p className="text-gray-300 mt-1">Seluruh riwayat perjalanan dinas</p>
           </div>
           <div className="flex gap-2">
+            {/* TOMBOL EKSPOR EXCEL */}
+            <button 
+              onClick={handleExport}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-emerald-900/30"
+            >
+              📊 Ekspor Excel
+            </button>
+
             <Link href="/" className="bg-[#3A4355] hover:bg-gray-600 border border-gray-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 text-sm">
               &larr; Dashboard
             </Link>
